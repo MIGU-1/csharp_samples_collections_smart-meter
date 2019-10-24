@@ -12,7 +12,6 @@ namespace SmartMeter.Core
         private List<Day> _measurements;
         private readonly string _inputFilePath;
 
-
         public Controller(string[] inputFileNames, string holidayFileName)
         {
             _inputFilePath = MyFile.GetFullFolderNameInApplicationTree("input");
@@ -20,9 +19,7 @@ namespace SmartMeter.Core
             InitHolidays(holidayFileName);
             InitMeasurements(inputFileNames);
         }
-
         public int CountOfMeasurements => _measurements.Count;
-
         public string CreateMarkdownDump()
         {
 
@@ -36,21 +33,48 @@ namespace SmartMeter.Core
 
             throw new NotImplementedException();
         }
-
         private void InitHolidays(string holidayFileName)
         {
             _holidays = new Dictionary<DateTime, string>();
 
-            throw new NotImplementedException();
+            string[] lines = File.ReadAllLines(Path.Combine(_inputFilePath, holidayFileName), Encoding.UTF8);
+
+            foreach (var line in lines)
+            {
+                string[] parts = line.Split(";");
+
+                string description = parts[0];
+                DateTime date = DateTime.Parse(parts[1]);
+
+                _holidays.Add(date, description);
+            }
         }
-
-
         private void InitMeasurements(string[] inputFileNames)
         {
             _measurements = new List<Day>();
+            Dictionary<DateTime, double> dailyMeasurements = new Dictionary<DateTime, double>();
 
-            throw new NotImplementedException();
+            foreach (var inputFile in inputFileNames)
+            {
+                string[] lines = File.ReadAllLines(Path.Combine(_inputFilePath, inputFile), Encoding.UTF8);
+
+                foreach(string line in lines)
+                {
+                    string[] parts = line.Split(";");
+                    DateTime timeStamp = DateTime.Parse(parts[0]);
+                    double measurement = double.Parse(parts[1]);
+
+                    if(dailyMeasurements.ContainsKey(timeStamp.Date))
+                    {
+                        dailyMeasurements[timeStamp.Date] += measurement;
+                    }
+                    else
+                    {
+                        //dailyMeasurements[timeStamp.Date] = measurement;
+                    }
+
+                }
+            }
         }
-
     }
 }
